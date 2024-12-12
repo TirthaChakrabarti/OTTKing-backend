@@ -1,0 +1,27 @@
+const express = require('express');
+
+const router = express.Router();
+
+const authController = require('../controllers/authController');
+const authMiddleware = require('../middleware/authMiddleware');
+
+router.post('/login', authController.login);
+router.post('/register', authController.register);
+// router.post('/logout', authController.logout);
+
+// Unprotected test route
+router.get('/test', (req, res) => {
+    res.status(200).json({ message: 'Test route accessed!' });
+});
+
+// Protected routes
+
+router.get('/subscription', authMiddleware, (req, res) => {
+    res.json({ message: 'Welcome to the subscription page!', user: req.user });
+});
+
+router.get('/useraccount', authMiddleware, (req, res) => {
+    res.json({ message: 'Welcome to the user account page!', user: req.user });
+});
+
+module.exports = router;
