@@ -2,31 +2,37 @@ const db = require('../config/db');
 const jwt = require('jsonwebtoken');
 
 const register = async (req, res) => {
-    const { name, email, phone } = req.body;
+    try{
 
-    if (!name || !email || !phone) {
-        console.log(name, email, phone);
-        return res.status(400).json({ message: 'All fields are required' });
-    }
-
-    db.query('SELECT * FROM users WHERE email = ?', [email], (error, results) => {
-        if (error) {
-            return res.status(500).json({ message: 'Database error' })
+        const { name, email, phone } = req.body;
+    
+        if (!name || !email || !phone) {
+            console.log(name, email, phone);
+            return res.status(400).json({ message: 'All fields are required' });
         }
-
-        if (results.length > 0) {
-            return response.status(409).json({ message: 'User already registered' })
-        }
-
-        db.query('INSERT INTO users (name, email, phone) VALUES (?, ?, ?)',
-            [name, email, phone],
-            (error) => {
-                if (error) return res.status(500).json({ message: 'Database error'})
-
-                res.status(201).json({ message: 'User registered successfully' })
+    
+        db.query('SELECT * FROM users WHERE email = ?', [email], (error, results) => {
+            if (error) {
+                return res.status(500).json({ message: 'Database error' })
             }
-        )
-    })
+            
+            if (results.length > 0) {
+                console.log("results.length: ", results.length)
+                return res.status(400).json({ message: 'User already registered' })
+            }
+    
+            db.query('INSERT INTO users (name, email, phone) VALUES (?, ?, ?)',
+                [name, email, phone],
+                (error) => {
+                    if (error) return res.status(500).json({ message: 'Database error'})
+
+                    res.status(201).json({ message: 'User registered successfully' })
+                }
+            )
+        })
+    } catch (error) {
+        res.status(400).json({ message: 'Something went wrong' })
+    }
 }
 
 const login = async (req, res) => {
