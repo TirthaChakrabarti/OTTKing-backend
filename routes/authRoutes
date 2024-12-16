@@ -16,12 +16,19 @@ router.get('/test', (req, res) => {
 
 // Protected routes
 
-router.get('/subscription', authMiddleware, (req, res) => {
-    res.json({ message: 'Welcome to the subscription page!', user: req.user });
+router.get('/payment-gateway', authMiddleware, (req, res) => {
+    res.json({ message: 'Welcome to the payment gateway!', user: req.user });
 });
 
-router.get('/useraccount', authMiddleware, (req, res) => {
-    res.json({ message: 'Welcome to the user account page!', user: req.user });
+router.get('/user-details', authMiddleware, (req, res) => {
+    res.json({ message: 'Welcome to the user account!', user: req.user });
+});
+
+// router.put('/update', authMiddleware, authController.updateDetails);
+router.put('/update', authController.updateDetails);
+
+router.post('/logout', authMiddleware, (req, res) => {
+    res.json({ message: 'Logged out successfully!', user: req.user });
 });
 
 module.exports = router;

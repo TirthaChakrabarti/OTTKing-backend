@@ -3,7 +3,6 @@ const jwt = require('jsonwebtoken');
 
 const register = async (req, res) => {
     try{
-
         const { name, email, phone } = req.body;
     
         if (!name || !email || !phone) {
@@ -58,9 +57,54 @@ const login = async (req, res) => {
         }
 
         // Generate JWT token
-        const token = jwt.sign({ id: user.id, phoneNumber: user.phone_no }, 'my_secret_key');
+        const token = jwt.sign({ id: user.id }, 'my_secret_key');
         res.json({ token });
     });
 }
 
-module.exports = { register, login }
+const updateDetails = async (req, res) => {
+
+    console.log("At backend authController");
+
+    const { name, email, phone, birthdate, gender } = req.body;
+
+    const userId = req.user.id; // Get user ID from JWT
+
+    const updates = {
+        name,
+        email,
+        phone,
+        birthdate,
+        gender
+    };
+
+    // Filter out null or undefined values
+    const validUpdates = Object.entries(updates).filter(([key, value]) => value !== null && value !== undefined);
+
+    if (validUpdates.length === 0) {
+        return res.status(400).json({ message: 'At least one field is required' });
+    }
+
+    // Construct the SET clause of the UPDATE query
+    const setClause = validUpdates.map(([key]) => `${key} = ?`).join(', ');
+
+    // values to be inserted into the query
+    const values = validUpdates.map(([_, value]) => value);
+    values.push(userId);
+
+    const updatedQuery = `UPDATE users SET ${setClause} WHERE id = ?`;
+
+    db.query(updatedQuery, values, (error, results) => {
+        if (error) {
+            return res.status(500).json({ message: 'Database error' });
+        }
+
+        if (results.affectedRows === 0) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        res.status(200).json({ message: 'Details updated successfully!' });
+    });
+}
+
+module.exports = { register, login, updateDetails }
