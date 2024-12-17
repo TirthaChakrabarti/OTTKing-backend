@@ -10,7 +10,7 @@ const authMiddleware = (req, res, next) => {
     const token = authHeader.split(' ')[1]; // Extract the token from the "Bearer" scheme
 
     try {
-        const decoded = jwt.verify(token, process.env.JWT_SECRET); // Verify the token
+        const decoded = jwt.verify(token, 'my_secret_key'); // Verify the token
         req.user = decoded; // Attach user info to the request object
         next(); // Proceed to the next middleware
     } catch (error) {

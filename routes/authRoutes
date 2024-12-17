@@ -24,11 +24,12 @@ router.get('/user-details', authMiddleware, (req, res) => {
     res.json({ message: 'Welcome to the user account!', user: req.user });
 });
 
-// router.put('/update', authMiddleware, authController.updateDetails);
-router.put('/update', authController.updateDetails);
+router.put('/update', authMiddleware, authController.updateDetails);
 
 router.post('/logout', authMiddleware, (req, res) => {
     res.json({ message: 'Logged out successfully!', user: req.user });
 });
+
+router.delete('/delete', authMiddleware, authController.deleteAccount);
 
 module.exports = router;

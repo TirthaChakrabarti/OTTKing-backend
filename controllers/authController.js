@@ -5,12 +5,11 @@ const register = async (req, res) => {
     try{
         const { name, email, phone } = req.body;
     
-        if (!name || !email || !phone) {
-            console.log(name, email, phone);
+        if (!name || !phone) {
             return res.status(400).json({ message: 'All fields are required' });
         }
     
-        db.query('SELECT * FROM users WHERE email = ?', [email], (error, results) => {
+        db.query('SELECT * FROM users WHERE phone = ?', [phone], (error, results) => {
             if (error) {
                 return res.status(500).json({ message: 'Database error' })
             }
@@ -50,8 +49,6 @@ const login = async (req, res) => {
 
         const mockOTP = '1234';
 
-        console.log(otp);
-
         if (otp !== mockOTP) {
             return res.status(401).json({ message: 'Incorrect OTP' });
         }
@@ -59,12 +56,12 @@ const login = async (req, res) => {
         // Generate JWT token
         const token = jwt.sign({ id: user.id }, 'my_secret_key');
         res.json({ token });
+
+        if(token) console.log('Logged in. JWT generated.')
     });
 }
 
 const updateDetails = async (req, res) => {
-
-    console.log("At backend authController");
 
     const { name, email, phone, birthdate, gender } = req.body;
 
@@ -94,7 +91,7 @@ const updateDetails = async (req, res) => {
 
     const updatedQuery = `UPDATE users SET ${setClause} WHERE id = ?`;
 
-    db.query(updatedQuery, values, (error, results) => {
+    db.query(updatedQuery, values, async (error, results) => {
         if (error) {
             return res.status(500).json({ message: 'Database error' });
         }
@@ -107,4 +104,17 @@ const updateDetails = async (req, res) => {
     });
 }
 
-module.exports = { register, login, updateDetails }
+const deleteAccount = (req, res) => {
+    const userId = req.user.id;
+    console.log("userId: ", userId)
+
+    db.query('UPDATE users SET status = 0 WHERE id = ?', [userId], async (error, results) => {
+        if (error) {
+            return res.error(500).json({ message: 'Database error'})
+        }
+
+        res.status(200).json({ message: 'Account deleted successfully'});
+    })
+}
+
+module.exports = { register, login, updateDetails, deleteAccount }
